@@ -27,19 +27,25 @@ for row in contacts_list[1:]:
     if phone:
         match = re.search(phone_pattern, phone)
         if match:
+            formatted_phone = f"+7({match.group(2)}){match.group(3)}-{match.group(4)}-{match.group(5)}"
             if match.group(7):
-                phone = re.sub(phone_pattern, r"+7(\2)\3-\4-\5 доб.\7", phone)
-            else:
-                phone = re.sub(phone_pattern, r"+7(\2)\3-\4-\5", phone)
-    key = (lastname, firstname)
+                formatted_phone += f" доб.{match.group(7)}"
+            phone = formatted_phone
+
     new_row = [lastname, firstname, surname, row[3], row[4], phone, row[6]]
 
-    if key not in contacts_dict:
-        contacts_dict[key] = new_row
-    else:
-        for i in range(len(new_row)):
-            if not contacts_dict[key][i]:
-                contacts_dict[key][i] = new_row[i]
+    found = False
+    for key in contacts_dict.keys():
+        if lastname == key[0] and firstname == key[1]:
+            if surname == key[2] or not key[2] or not surname:
+                for i in range(len(new_row)):
+                    if not contacts_dict[key][i] and new_row[i]:
+                        contacts_dict[key][i] = new_row[i]
+                found = True
+                break
+
+    if not found:
+        contacts_dict[(lastname, firstname, surname)] = new_row
 
 result_list = [header] + list(contacts_dict.values())
 
@@ -50,3 +56,4 @@ with open("phonebook_fixed.csv", "w", encoding="utf-8", newline="") as f:
   writer = csv.writer(f)
   # Вместо contacts_list подставьте свой список
   writer.writerows(result_list)
+print(f"Готово! В файле {len(result_list)} строк (включая заголовок).")
