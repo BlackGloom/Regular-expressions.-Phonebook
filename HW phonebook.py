@@ -32,12 +32,18 @@ for row in contacts_list[1:]:
                 formatted_phone += f" доб.{match.group(7)}"
             phone = formatted_phone
 
-    new_row = [lastname, firstname, surname, row[3], row[4], phone, row[6]]
+    organization = row[3]
+    email = row[6]
+    new_row = [lastname, firstname, surname, organization, row[4], phone, email]
 
     found = False
     for key in contacts_dict.keys():
         if lastname == key[0] and firstname == key[1]:
-            if surname == key[2] or not key[2] or not surname:
+            same_surname = (surname == contacts_dict[key][2] or not surname or not contacts_dict[key][2])
+            same_org = (organization == contacts_dict[key][3] or not organization or not contacts_dict[key][3])
+            same_email = (email == contacts_dict[key][6] or not email or not contacts_dict[key][6])
+
+            if same_surname and same_org and same_email:
                 for i in range(len(new_row)):
                     if not contacts_dict[key][i] and new_row[i]:
                         contacts_dict[key][i] = new_row[i]
